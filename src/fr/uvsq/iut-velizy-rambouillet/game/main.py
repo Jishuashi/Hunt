@@ -6,9 +6,14 @@ from librairies.tkiteasy import *
 g = ouvrirFenetre(800,600)
 
 # afficher image
-pacman = g.afficherImage(400,300,"./assets/pacman.png")
+pacman = g.dessinerCercle(250, 250, 150, "white")
 
-# fermeture fenêtre
-input("fermer-fenetre - attendreClic Bloquant")
-g.attendreClic()
-g.fermerFenetre()
+while(True):
+    test = g.recupererClic()
+    g.update()
+
+    if(test):
+        g.fermerFenetre()
+
+
+
