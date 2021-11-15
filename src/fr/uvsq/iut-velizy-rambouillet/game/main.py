@@ -10,11 +10,14 @@ stageWidth = 900
 grid = [ ]
 RAYON = 10
 
+def coordinateToRawCol(x, y):
+    posGrid = Point((x - 15)/30, (y - 15)/30)
+
+
 def drawProie():
     spawnX = randrange(15, stageHeight, cellSize)
     spawnY = randrange(15, stageHeight, cellSize)
-    Ligne = (spawnX - 15)/30
-    Col = (spawnY - 15)/30
+    print(coordinateToRawCol(spawnX, spawnY))
     g.dessinerDisque(spawnX, spawnY, RAYON, "green")
     g.update()
 
