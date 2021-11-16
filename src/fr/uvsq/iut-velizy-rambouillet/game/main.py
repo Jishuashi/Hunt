@@ -1,4 +1,7 @@
 #coding: utf-8
+#Authors - CHARTIER Hugo
+#        _ CHARTON SAMUEL
+
 from librairies.tkiteasy import *
 from librairies.Point import *
 from random import *
@@ -9,17 +12,24 @@ stageHeight = 900
 stageWidth = 900
 grid = [ ]
 RAYON = 10
+SPAWN_RATE_PREY = 10
+SPAWN_RATE_PRED = 2 
 
 def coordinateToRawCol(x, y):
     posGrid = Point((x - 15)/30, (y - 15)/30)
-
+    return posGrid
 
 def drawProie():
-    spawnX = randrange(15, stageHeight, cellSize)
-    spawnY = randrange(15, stageHeight, cellSize)
-    print(coordinateToRawCol(spawnX, spawnY))
-    g.dessinerDisque(spawnX, spawnY, RAYON, "green")
-    g.update()
+    while True:
+        spawnX = randrange(15, stageHeight, cellSize)
+        spawnY = randrange(15, stageHeight, cellSize)
+        
+        if(grid[coordinateToRawCol(spawnX, spawnY).x][(coordinateToRawCol(spawnX, spawnY).y)][0] == False):
+            grid[coordinateToRawCol(spawnX, spawnY).x][(coordinateToRawCol(spawnX, spawnY).y)][0] =  True
+            grid[coordinateToRawCol(spawnX, spawnY).x][(coordinateToRawCol(spawnX, spawnY).y)][1] = 'Prey'
+            g.dessinerDisque(spawnX, spawnY, RAYON, "green")
+            g.update()
+            break
 
 def drawGrid(pObjGraph, pCellSize, pOriginX, pOriginY, pEndY, pEndX):
     lOriginX = pOriginX
@@ -47,19 +57,15 @@ def drawGrid(pObjGraph, pCellSize, pOriginX, pOriginY, pEndY, pEndX):
         lStartLigneRaw += pCellSize
         
         for m in range(lNCellRaw):
-            grid[i][str(m)] = [False , None]
+            grid[i][m] = [False , None]
     
     
         
+for i in range(SPAWN_RATE_PREY):
+    spawnProie()
 
-# ouverture de fenêtre
-g = ouvrirFenetre(stageWidth, stageHeight)
-
-# afficher image
-drawGrid(g, cellSize, 0 , 0, stageHeight , stageWidth)
 
 print(grid)
-drawProie()
 
 while(True):
 

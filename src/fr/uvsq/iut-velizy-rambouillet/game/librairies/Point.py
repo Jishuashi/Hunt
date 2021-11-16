@@ -6,10 +6,10 @@ class Point:
         X -> int
         Y -> int """
     
-    def __init__(self, x : int, y: int):
+    def __init__(self, x , y):
         #constructeur de Point attrbut à x et y les valeur d'appel
-        self._x = x
-        self._y = y
+        self._x = int(x)
+        self._y = int(y)
 
     @property
     def x(self):
