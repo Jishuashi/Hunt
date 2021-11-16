@@ -1,21 +1,19 @@
 #coding: utf-8
 #Authors - CHARTIER Hugo
 #        _ CHARTON SAMUEL
-
 from librairies.tkiteasy import *
 from librairies.Point import *
 from random import *
 
-
-cellSize = 30
-stageHeight = 900
-stageWidth = 900
-grid = [ ]
 RAYON = 10
 SPAWN_INIT_PREY = 10
 SPAWN_INIT_PRED = 2 
 D_PREY = 40
 
+cellSize = 30
+stageHeight = 900
+stageWidth = 900
+grid = [ ]
 
 
 def coordinateToRawCol(x, y):

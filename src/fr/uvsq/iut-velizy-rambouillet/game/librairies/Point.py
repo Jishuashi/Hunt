@@ -1,6 +1,10 @@
 #Author : Chartier Hugo
 from math import *
 
+RADTODEG = 180/pi
+DEGTORAD = pi/180
+
+
 class Point:
     """ Crée un point de Coordonnée X Y
         X -> int
@@ -62,7 +66,6 @@ class Point:
     @staticmethod
     def cartesianToPolar(pA) -> tuple:
         """Transforme des coordonées Cartésienne en coordonées Polaire"""
-        RADTODEG = 180/pi
 
         lR = 0
         lAngle = 0
@@ -81,8 +84,6 @@ class Point:
         """Transforme des coordonées Polaire en coordonées Cartésienne"""
         lX = 0
         lY = 0
-
-        DEGTORAD = pi/180
 
         lAngle = pA.y * DEGTORAD
 
