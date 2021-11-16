@@ -12,22 +12,28 @@ stageHeight = 900
 stageWidth = 900
 grid = [ ]
 RAYON = 10
-SPAWN_RATE_PREY = 10
-SPAWN_RATE_PRED = 2 
+SPAWN_INIT_PREY = 10
+SPAWN_INIT_PRED = 2 
+D_PREY = 40
+
+
 
 def coordinateToRawCol(x, y):
-    posGrid = Point((x - 15)/30, (y - 15)/30)
-    return posGrid
+    lPosGrid = Point((x - 15)/30, (y - 15)/30)
+    return lPosGrid
 
-def drawProie():
+
+def spawnPrey():
     while True:
-        spawnX = randrange(15, stageHeight, cellSize)
-        spawnY = randrange(15, stageHeight, cellSize)
+        lSpawnX = randrange(15, stageHeight, cellSize)
+        lSpawnY = randrange(15, stageHeight, cellSize)
+
+        lPosGrid = coordinateToRawCol(lSpawnX, lSpawnY)
         
-        if(grid[coordinateToRawCol(spawnX, spawnY).x][(coordinateToRawCol(spawnX, spawnY).y)][0] == False):
-            grid[coordinateToRawCol(spawnX, spawnY).x][(coordinateToRawCol(spawnX, spawnY).y)][0] =  True
-            grid[coordinateToRawCol(spawnX, spawnY).x][(coordinateToRawCol(spawnX, spawnY).y)][1] = 'Prey'
-            g.dessinerDisque(spawnX, spawnY, RAYON, "green")
+        if(grid[lPosGrid.x][(lPosGrid.y)][0] == False):
+            grid[lPosGrid.x][(lPosGrid.y)][0] =  True
+            grid[lPosGrid.x][(lPosGrid.y)][1] = 'Prey'
+            g.dessinerDisque(lSpawnX, lSpawnY, RAYON, "green")
             g.update()
             break
 
@@ -40,6 +46,7 @@ def drawGrid(pObjGraph, pCellSize, pOriginX, pOriginY, pEndY, pEndX):
 
     lNcellCol = int(stageWidth / pCellSize)
     lNCellRaw = int(stageHeight / pCellSize)
+
     for j in range(lNcellCol):
 
         lCol = pObjGraph.dessinerLigne(lStartLigneCol, 0, lStartLigneCol , pEndY, "white")
@@ -61,12 +68,20 @@ def drawGrid(pObjGraph, pCellSize, pOriginX, pOriginY, pEndY, pEndX):
     
     
         
-for i in range(SPAWN_RATE_PREY):
-    spawnProie()
 
+# ouverture de fenêtre
+g = ouvrirFenetre(stageWidth, stageHeight)
+
+# afficher image
+drawGrid(g, cellSize, 0 , 0, stageHeight , stageWidth)
+
+
+
+for i in range(SPAWN_INIT_PREY):
+    spawnPrey()
 
 print(grid)
-
+g.afficherTexte(SPAWN_INIT_PREY, 450, 10)
 while(True):
 
     test = g.recupererClic()
