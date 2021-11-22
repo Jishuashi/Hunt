@@ -7,33 +7,46 @@ from random import *
 
 RAYON = 10
 SPAWN_INIT_PREY = 10
-SPAWN_INIT_PRED = 2 
+SPAWN_INIT_PRED = 2
 D_PREY = 40
+CELLSIZE = 30
 
-cellSize = 30
 stageHeight = 900
 stageWidth = 900
 grid = [ ]
-
+preyList = [ ]
+predList = [ ]
 
 def coordinateToRawCol(x, y):
     lPosGrid = Point((x - 15)/30, (y - 15)/30)
     return lPosGrid
 
-
-def spawnPrey():
-    while True:
-        lSpawnX = randrange(15, stageHeight, cellSize)
-        lSpawnY = randrange(15, stageHeight, cellSize)
+def coordinateToCol(x):
+    Col = (x - 15)/30
+    return Col
+def coordinateToRaw(y):
+    Raw = (y - 15)/30
+    return Raw
+def spawnPrey(pIndex):
+    i = 0
+    
+    while i != pIndex:
+        lSpawnX = randrange(15, stageHeight, CELLSIZE)
+        lSpawnY = randrange(15, stageHeight, CELLSIZE)
+        
 
         lPosGrid = coordinateToRawCol(lSpawnX, lSpawnY)
         
         if(grid[lPosGrid.x][(lPosGrid.y)][0] == False):
             grid[lPosGrid.x][(lPosGrid.y)][0] =  True
             grid[lPosGrid.x][(lPosGrid.y)][1] = 'Prey'
-            g.dessinerDisque(lSpawnX, lSpawnY, RAYON, "green")
+            preyList.append([None, D_PREY, "Prey"])
+            preyList[i][0] = g.dessinerDisque(lSpawnX, lSpawnY, RAYON, "green")
+            i += 1
+
             g.update()
-            break
+
+
 
 def drawGrid(pObjGraph, pCellSize, pOriginX, pOriginY, pEndY, pEndX):
     lOriginX = pOriginX
@@ -63,27 +76,73 @@ def drawGrid(pObjGraph, pCellSize, pOriginX, pOriginY, pEndY, pEndX):
         
         for m in range(lNCellRaw):
             grid[i][m] = [False , None]
+
+def testCase(pName, pIndexObj):
     
+    print("in function")
+
+    if (pName == "Prey"):
+        lPosOnGrid = coordinateToRawCol(preyList[pIndexObj][0].x , preyList[pIndexObj][0].y)
+        print(lPosOnGrid.get)
     
+    if (pName == 'Pred'):
+        print('Pred')
+
+
+
+def move(pList):
+    lNcellCol = int(stageWidth / CELLSIZE)
+    lNCellRaw = int(stageHeight / CELLSIZE)
+    
+    sleep(0.5)
+    
+    for i in range(len(pList)):
+        posNeg = [1 , -1]
+
+        ranX = CELLSIZE * randrange(0, 2) * posNeg[randrange(0, 2)]
+        ranY = CELLSIZE * randrange(0, 2) * posNeg[randrange(0, 2)]
         
+        if (coordinateToCol(pList[i][0].x) == 0):
+            if (ranX < 0):
+                ranX *= -1
+        elif (coordinateToCol(pList[i][0].x) == (lNcellCol - 1)):
+            if (ranX > 0):
+                ranX *= -1
+        elif (coordinateToCol(pList[i][0].y) == 0):
+            if (ranY < 0):
+                ranY *= -1
+        elif (coordinateToCol(pList[i][0].y) == (lNCellRaw - 1)):
+            if (ranY > 0):
+                ranY *= -1
+        
+        g.deplacer(pList[i][0] , ranX, ranY)
+
+        print(ranX , ranY)       
+
+    
 
 # ouverture de fenêtre
 g = ouvrirFenetre(stageWidth, stageHeight)
 
 # afficher image
-drawGrid(g, cellSize, 0 , 0, stageHeight , stageWidth)
+drawGrid(g, CELLSIZE, 0 , 0, stageHeight , stageWidth)
 
 
 
-for i in range(SPAWN_INIT_PREY):
-    spawnPrey()
 
-print(grid)
-g.afficherTexte(SPAWN_INIT_PREY, 450, 10)
+spawnPrey(SPAWN_INIT_PREY)
+
+
+#print(grid)
+#print(preyList)
+
 while(True):
+    g.update()
+    move(preyList)
+
 
     test = g.recupererClic()
-    g.update()
 
     if(test):
         g.fermerFenetre()
+        break
