@@ -1,24 +1,37 @@
 #coding: utf-8
-#Authors - CHARTIER Hugo
-#        _ CHARTON SAMUEL
+#Authors - CHARTIER Hugo 
+#        - CHARTON SAMUEL
 from librairies.tkiteasy import *
 from librairies.Point import *
 from random import *
 
 RAYON = 10
-SPAWN_INIT_PREY = 10
-SPAWN_INIT_PRED = 2
+SPAWN_INIT_PREY = 30
+SPAWN_INIT_PRED = 20
 D_PREY = 40
+D_PRED = 0
 CELLSIZE = 30
+TIME_CYCLE = 1
 
 stageHeight = 900
 stageWidth = 900
 grid = [ ]
 preyList = [ ]
 predList = [ ]
+cycleTime = 0
 
 def coordinateToRawCol(x, y):
     lPosGrid = Point((x - 15)/30, (y - 15)/30)
+
+    if(lPosGrid.x >= 30):
+        lPosGrid.set_x = 29
+    if(lPosGrid.y >= 30):
+        lPosGrid.set_y = 29
+    if(lPosGrid.x < 0):
+        lPosGrid.set_x = 0
+    if(lPosGrid.y < 0):
+        lPosGrid.set_y = 0
+
     return lPosGrid
 
 def coordinateToCol(x):
@@ -27,6 +40,7 @@ def coordinateToCol(x):
 def coordinateToRaw(y):
     Raw = (y - 15)/30
     return Raw
+
 def spawnPrey(pIndex):
     i = 0
     
@@ -39,9 +53,28 @@ def spawnPrey(pIndex):
         
         if(grid[lPosGrid.x][(lPosGrid.y)][0] == False):
             grid[lPosGrid.x][(lPosGrid.y)][0] =  True
-            grid[lPosGrid.x][(lPosGrid.y)][1] = 'Prey'
+            grid[lPosGrid.x][(lPosGrid.y)][1] = "Prey"
             preyList.append([None, D_PREY, "Prey"])
-            preyList[i][0] = g.dessinerDisque(lSpawnX, lSpawnY, RAYON, "green")
+            preyList[i][0] = g.dessinerDisque(lSpawnX, lSpawnY, RAYON, "lime")
+            i += 1
+
+            g.update()
+
+def spawnPred(pIndex):
+    i = 0
+    
+    while i != pIndex:
+        lSpawnX = randrange(15, stageHeight, CELLSIZE)
+        lSpawnY = randrange(15, stageHeight, CELLSIZE)
+        
+
+        lPosGrid = coordinateToRawCol(lSpawnX, lSpawnY)
+        
+        if(grid[lPosGrid.x][(lPosGrid.y)][0] == False):
+            grid[lPosGrid.x][(lPosGrid.y)][0] =  True
+            grid[lPosGrid.x][(lPosGrid.y)][1] = 'Pred'
+            predList.append([None, D_PRED, "Pred"])
+            predList[i][0] = g.dessinerDisque(lSpawnX, lSpawnY, RAYON, "orange")
             i += 1
 
             g.update()
@@ -77,31 +110,50 @@ def drawGrid(pObjGraph, pCellSize, pOriginX, pOriginY, pEndY, pEndX):
         for m in range(lNCellRaw):
             grid[i][m] = [False , None]
 
-def testCase(pName, pIndexObj):
-    
-    print("in function")
+def testCase(pName, pIndexObj , pNextPos):
 
     if (pName == "Prey"):
-        lPosOnGrid = coordinateToRawCol(preyList[pIndexObj][0].x , preyList[pIndexObj][0].y)
-        print(lPosOnGrid.get)
+        lPosOnGrid = coordinateToRawCol(pNextPos.x , pNextPos.y)
+
+        if(grid[lPosOnGrid.x][lPosOnGrid.y][0]):
+            return False
+        else :
+          return True
+        
     
     if (pName == 'Pred'):
-        print('Pred')
+        return True
 
+def updateGrid (pLastPos, pNextPos):
+    lPosOnGrid = coordinateToRawCol(pLastPos.x , pLastPos.y)
+    lNextPosOnGrid = coordinateToRawCol(pNextPos.x , pNextPos.y)
+
+    grid[lNextPosOnGrid.x][lNextPosOnGrid.y] = grid[lPosOnGrid.x][lPosOnGrid.y]
+    grid[lPosOnGrid.x][lPosOnGrid.y] = [False, None]
+
+def death(pList):
+    sleep(0.25)
+
+    for i in range(len(pList)):
+        if (pList[i][1] <= 0):
+            g.changerCouleur(pList[i][0], "black")
+
+        pList[i][1] -= 1         
 
 
 def move(pList):
     lNcellCol = int(stageWidth / CELLSIZE)
     lNCellRaw = int(stageHeight / CELLSIZE)
     
-    sleep(0.5)
+    sleep(0.25)
     
     for i in range(len(pList)):
         posNeg = [1 , -1]
-
         ranX = CELLSIZE * randrange(0, 2) * posNeg[randrange(0, 2)]
         ranY = CELLSIZE * randrange(0, 2) * posNeg[randrange(0, 2)]
         
+        
+
         if (coordinateToCol(pList[i][0].x) == 0):
             if (ranX < 0):
                 ranX *= -1
@@ -115,10 +167,29 @@ def move(pList):
             if (ranY > 0):
                 ranY *= -1
         
-        g.deplacer(pList[i][0] , ranX, ranY)
+        lNextPos = Point((ranX + pList[i][0].x), (ranY + pList[i][0].y))
 
-        print(ranX , ranY)       
+        if (testCase(pList[i][2], i, lNextPos)):
+            lPrevPos = Point(pList[i][0].x , pList[i][0].y)
+            updateGrid(lPrevPos, lNextPos)
+            g.deplacer(pList[i][0] , ranX, ranY)
+     
+def birthPrey():
+    while True:
+        lSpawnX = randrange(15, stageHeight, CELLSIZE)
+        lSpawnY = randrange(15, stageHeight, CELLSIZE)
+        
 
+        lPosGrid = coordinateToRawCol(lSpawnX, lSpawnY)
+        
+        if(grid[lPosGrid.x][(lPosGrid.y)][0] == False):
+            grid[lPosGrid.x][(lPosGrid.y)][0] =  True
+            grid[lPosGrid.x][(lPosGrid.y)][1] = 'Prey'
+            preyList.append([None, D_PREY, "Prey"])
+            preyList[(len(preyList) - 1)][0] = g.dessinerDisque(lSpawnX, lSpawnY, RAYON, "blue")
+
+            g.update()
+            break
     
 
 # ouverture de fenêtre
@@ -131,14 +202,21 @@ drawGrid(g, CELLSIZE, 0 , 0, stageHeight , stageWidth)
 
 
 spawnPrey(SPAWN_INIT_PREY)
-
-
-#print(grid)
-#print(preyList)
+#spawnPred(SPAWN_INIT_PRED)
 
 while(True):
     g.update()
     move(preyList)
+    cycleTime +=1
+
+    if (cycleTime >= TIME_CYCLE):
+        cycleTime = 0
+        birthPrey() 
+    
+    
+    #move(predList)
+
+    death(preyList)
 
 
     test = g.recupererClic()
