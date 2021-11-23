@@ -81,10 +81,7 @@ def spawnPred(pIndex):
 
 
 
-def drawGrid(pObjGraph, pCellSize, pOriginX, pOriginY, pEndY, pEndX):
-    lOriginX = pOriginX
-    lOriginY = pOriginY
-
+def drawGrid(pObjGraph, pCellSize, pEndY, pEndX):
     lStartLigneCol = 0
     lStartLigneRaw = 0
 
@@ -196,7 +193,7 @@ def birthPrey():
 g = ouvrirFenetre(stageWidth, stageHeight)
 
 # afficher image
-drawGrid(g, CELLSIZE, 0 , 0, stageHeight , stageWidth)
+drawGrid(g, CELLSIZE, stageHeight , stageWidth)
 
 
 
