@@ -8,7 +8,7 @@ from random import *
 RAYON = 10
 SPAWN_INIT_PREY = 30
 SPAWN_INIT_PRED = 20
-D_PREY = 40
+D_PREY = 10
 D_PRED = 0
 CELLSIZE = 30
 TIME_CYCLE = 1
@@ -121,21 +121,37 @@ def testCase(pName, pIndexObj , pNextPos):
     if (pName == 'Pred'):
         return True
 
-def updateGrid (pLastPos, pNextPos):
+def updatePosGrid (pLastPos, pNextPos):
     lPosOnGrid = coordinateToRawCol(pLastPos.x , pLastPos.y)
     lNextPosOnGrid = coordinateToRawCol(pNextPos.x , pNextPos.y)
 
     grid[lNextPosOnGrid.x][lNextPosOnGrid.y] = grid[lPosOnGrid.x][lPosOnGrid.y]
     grid[lPosOnGrid.x][lPosOnGrid.y] = [False, None]
 
+def updateDeathGrid(pPos):
+    lPosOnGrid = coordinateToRawCol(pPos.x , pPos.y)
+    grid[lPosOnGrid.x][lPosOnGrid.y] = [False, None]
+
 def death(pList):
     sleep(0.25)
+    lIndex = len(pList) - 1
 
-    for i in range(len(pList)):
-        if (pList[i][1] <= 0):
-            g.changerCouleur(pList[i][0], "black")
+    #print(lIndex)
 
-        pList[i][1] -= 1         
+    if(len(pList) != 0 and len(pList) > 0):
+
+        while lIndex >= 0:
+            if(len(pList) != 0 and len(pList) > 0):
+
+                if (pList[lIndex][1] <= 0):
+                    updateDeathGrid(Point(pList[lIndex][0].x, pList[lIndex][0].y))
+                    g.supprimer(pList[lIndex][0])
+                    pList.remove(pList[lIndex])
+                else :
+                    pList[lIndex][1] -= 1
+                
+                lIndex -= 1  
+                #print(lIndex)
 
 
 def move(pList):
@@ -168,7 +184,7 @@ def move(pList):
 
         if (testCase(pList[i][2], i, lNextPos)):
             lPrevPos = Point(pList[i][0].x , pList[i][0].y)
-            updateGrid(lPrevPos, lNextPos)
+            updatePosGrid(lPrevPos, lNextPos)
             g.deplacer(pList[i][0] , ranX, ranY)
      
 def birthPrey():
@@ -189,10 +205,10 @@ def birthPrey():
             break
     
 
-# ouverture de fenêtre
+#ouverture de fenêtre
 g = ouvrirFenetre(stageWidth, stageHeight)
 
-# afficher image
+#afficher image
 drawGrid(g, CELLSIZE, stageHeight , stageWidth)
 
 
@@ -208,7 +224,7 @@ while(True):
 
     if (cycleTime >= TIME_CYCLE):
         cycleTime = 0
-        birthPrey() 
+        #birthPrey() 
     
     
     #move(predList)
