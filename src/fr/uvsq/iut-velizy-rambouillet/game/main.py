@@ -170,6 +170,7 @@ def testCaseArroud(pList):
         
         lPosOfObj = Point(pList[lIndex][0].x, pList[lIndex][0].y)
 
+<<<<<<< HEAD
         for i in range(len(aroundCaseOnGrid)):
             lTestPos = Point((aroundCaseOnGrid[i].x + lPosOfObj.x),  (aroundCaseOnGrid[i].y + lPosOfObj.y))
             lTestCase = coordinateToRawCol(lTestPos.x, lTestPos.y)
@@ -180,6 +181,20 @@ def testCaseArroud(pList):
                         birthPrey(True, lPosOfObj, lTestPos, pList)
                         break
         lIndex -= 1                    
+=======
+        if(pList[m][3]):
+            pList[m][3] = False
+            for i in range(len(aroundCaseOnGrid)):
+                lTestPos = Point((aroundCaseOnGrid[i].x + lPosOfObj.x),  (aroundCaseOnGrid[i].y + lPosOfObj.y))
+                print(lTestPos.x, lTestPos.y)
+                lTestCase = coordinateToRawCol(lTestPos.x, lTestPos.y)
+                if (grid[lTestCase.x][lTestCase.y][0] == True):
+                    if (grid[lTestCase.x][lTestCase.y][1] == "Prey"):
+                        birthPrey(True,lPosOfObj, lTestPos)
+        else:
+            pass
+
+>>>>>>> e88d98d (Merge)
 
 
 def move(pList):
@@ -235,18 +250,29 @@ def birthPrey(pBirth = False, pCoord1 = None,  pCoord2 = None, Plist = None):
                 g.update()
                 break
     else :
+<<<<<<< HEAD
+=======
+        sleep(0.5)
+>>>>>>> e88d98d (Merge)
         lListOfCoord = [pCoord1, pCoord2]
         lListCoordPoss = [ ]
+        lListCoordPossWrong = [ ]
 
         for m in range(len(lListOfCoord)):
             for i in range(len(aroundCaseOnGrid)):
                 
                 lNextPos = Point(aroundCaseOnGrid[i].x + lListOfCoord[m].x, aroundCaseOnGrid[i].y + lListOfCoord[m].y)
-
+                
                 if (testCaseSpawn(lNextPos)):
+<<<<<<< HEAD
                     print("yo")
+=======
+                    #print("yo")
+                    pass
+>>>>>>> e88d98d (Merge)
                 else : 
                     lListCoordPoss.append([lNextPos, m])
+                    #sleep(10)
 
         lRandomIndex = randint(0, len(lListCoordPoss) - 1)
 
@@ -288,7 +314,7 @@ while(True):
         cycleTime = 0
         birthPrey() 
     
-    
+    #print(preyList)
     #move(predList)
 
     death(preyList)
