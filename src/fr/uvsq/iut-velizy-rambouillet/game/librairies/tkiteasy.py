@@ -75,7 +75,7 @@ class Canevas(tk.Canvas):
         obj.y += y
         self.move(obj.num,x,y)
 
-    def destroy(self, obj):
+    def destroyObj(self, obj):
         self.delete(obj.num)
         obj = None
 
