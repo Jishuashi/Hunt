@@ -11,7 +11,8 @@ SPAWN_INIT_PRED = 2
 D_PREY = 40
 D_PRED = 0
 CELLSIZE = 30
-TIME_CYCLE = 20
+TIME_CYCLE = 10
+TIME_CYCLE2 = 10
 
 aroundCaseOnGrid = [Point(30,-30), Point(-30,30), Point(30,0), Point(0,30), Point(-30,0), Point(0,-30), Point(30,30), Point(-30,-30)]
 stageHeight = 900
@@ -20,6 +21,7 @@ grid = [ ]
 preyList = [ ]
 predList = [ ]
 cycleTime = 0
+cycleTime2 = 0
 
 def coordinateToRawCol(x, y):
     lPosGrid = Point((x - 15)/30, (y - 15)/30)
@@ -55,7 +57,8 @@ def spawnPrey(pIndex):
         if(grid[lPosGrid.x][(lPosGrid.y)][0] == False):
             grid[lPosGrid.x][(lPosGrid.y)][0] =  True
             grid[lPosGrid.x][(lPosGrid.y)][1] = "Prey"
-            preyList.append([None, D_PREY, "Prey", True])
+            grid[lPosGrid.x][(lPosGrid.y)][2] = i
+            preyList.append([None, D_PREY, "Prey", True, [ ]])
             preyList[i][0] = g.dessinerDisque(lSpawnX, lSpawnY, RAYON, "lime")
             i += 1
 
@@ -74,6 +77,7 @@ def spawnPred(pIndex):
         if(grid[lPosGrid.x][(lPosGrid.y)][0] == False):
             grid[lPosGrid.x][(lPosGrid.y)][0] =  True
             grid[lPosGrid.x][(lPosGrid.y)][1] = 'Pred'
+            grid[lPosGrid.x][(lPosGrid.y)][2] = i
             predList.append([None, D_PRED, "Pred"])
             predList[i][0] = g.dessinerDisque(lSpawnX, lSpawnY, RAYON, "orange")
             i += 1
@@ -106,7 +110,7 @@ def drawGrid(pObjGraph, pCellSize, pEndY, pEndX):
         lStartLigneRaw += pCellSize
         
         for m in range(lNCellRaw):
-            grid[i][m] = [False , None]
+            grid[i][m] = [False , None, -1]
 
 def testCaseMove(pName, pIndexObj, pNextPos):
 
@@ -136,11 +140,18 @@ def updatePosGrid (pLastPos, pNextPos):
     lNextPosOnGrid = coordinateToRawCol(pNextPos.x , pNextPos.y)
 
     grid[lNextPosOnGrid.x][lNextPosOnGrid.y] = grid[lPosOnGrid.x][lPosOnGrid.y]
-    grid[lPosOnGrid.x][lPosOnGrid.y] = [False, None]
+    grid[lPosOnGrid.x][lPosOnGrid.y] = [False, None, -1]
 
-def updateDeathGrid(pPos):
+def updateDeathGrid(pPos, pList):
     lPosOnGrid = coordinateToRawCol(pPos.x , pPos.y)
-    grid[lPosOnGrid.x][lPosOnGrid.y] = [False, None]
+    grid[lPosOnGrid.x][lPosOnGrid.y] = [False, None, -1]
+
+    for i in range(len(pList)):
+        
+        lPosOnGridObj = coordinateToRawCol(pList[i][0].x , pList[i][0].y)
+
+        grid[lPosOnGridObj.x][lPosOnGridObj.y] = [grid[lPosOnGridObj.x][lPosOnGridObj.y][0], grid[lPosOnGridObj.x][lPosOnGridObj.y][0], i]
+        
 
 def death(pList):
     sleep(0.25)
@@ -154,7 +165,7 @@ def death(pList):
             if(len(pList) != 0 and len(pList) > 0):
 
                 if (pList[lIndex][1] <= 0):
-                    updateDeathGrid(Point(pList[lIndex][0].x, pList[lIndex][0].y))
+                    updateDeathGrid(Point(pList[lIndex][0].x, pList[lIndex][0].y), pList)
                     g.supprimer(pList[lIndex][0])
                     pList.remove(pList[lIndex])
                 else :
@@ -162,38 +173,50 @@ def death(pList):
                 
                 lIndex -= 1  
                 #print(lIndex)
+    
+def testCaseBirth(pList, pListCord):
+    for i in range(len(pList)):
+        if(pList[i][3]):
+            lPosObj = Point(pList[i][0].x, pList[i][0].y)
 
+            for m in range(len(pListCord)):
 
-def testCaseArroud(pList):
-    lIndex = len(pList) - 1
-    while lIndex !=0 :
-        
-        lPosOfObj = Point(pList[lIndex][0].x, pList[lIndex][0].y)
+                lArroundCaseTest = coordinateToRawCol(lPosObj.x + pListCord[m].x, lPosObj.y + pListCord[m].y)
 
-        for i in range(len(aroundCaseOnGrid)):
-            lTestPos = Point((aroundCaseOnGrid[i].x + lPosOfObj.x),  (aroundCaseOnGrid[i].y + lPosOfObj.y))
-            lTestCase = coordinateToRawCol(lTestPos.x, lTestPos.y)
-            if(pList[lIndex][3]):
-                pList[lIndex][3] = False
-                if (grid[lTestCase.x][lTestCase.y][0] == True):
-                    if (grid[lTestCase.x][lTestCase.y][1] == "Prey"):
-                        birthPrey(True, lPosOfObj, lTestPos, pList)
-                        break
-        lIndex -= 1                    
+                if(grid[lArroundCaseTest.x][lArroundCaseTest.y][0]):
+                    if(grid[lArroundCaseTest.x][lArroundCaseTest.y][1] == "Prey"):
+                        
+                        lObj = pList[i][0]
+                        lIndexObj2 = grid[lArroundCaseTest.x][lArroundCaseTest.y][2]
+                        lObj2 = pList[lIndexObj2][0]
 
-
+                        for j in range(len(pList[i][4])):
+                            if (pList[i][4][j] == lIndexObj2):
+                                print("YUUUUUUUUUUUUUUUUUUu")
+                                return
+                        
+                        pList[i][3] = False
+                        pList[grid[lArroundCaseTest.x][lArroundCaseTest.y][2]][3] = False
+                        
+                        birthPrey(True, lObj, lObj2)
+                         
+                    elif(grid[lArroundCaseTest.x][lArroundCaseTest.y][1] == "Pred"):
+                        pass
+            
+            
+            
+            
 def move(pList):
     lNcellCol = int(stageWidth / CELLSIZE)
     lNCellRaw = int(stageHeight / CELLSIZE)
     
     sleep(0.25)
+
     
     for i in range(len(pList)):
         posNeg = [1 , -1]
         ranX = CELLSIZE * randrange(0, 2) * posNeg[randrange(0, 2)]
         ranY = CELLSIZE * randrange(0, 2) * posNeg[randrange(0, 2)]
-        
-        
 
         if (coordinateToCol(pList[i][0].x) == 0):
             if (ranX < 0):
@@ -214,9 +237,10 @@ def move(pList):
             lPrevPos = Point(pList[i][0].x , pList[i][0].y)
             updatePosGrid(lPrevPos, lNextPos)
             g.deplacer(pList[i][0] , ranX, ranY)
-            testCaseArroud(pList)
+            testCaseBirth(pList, aroundCaseOnGrid)
             
-def birthPrey(pBirth = False, pCoord1 = None,  pCoord2 = None, Plist = None):
+            
+def birthPrey(pBirth = False, pObj1 = None,  pObj2 = None):
     
     if (pBirth == False):
         while True:
@@ -229,39 +253,52 @@ def birthPrey(pBirth = False, pCoord1 = None,  pCoord2 = None, Plist = None):
             if(grid[lPosGrid.x][(lPosGrid.y)][0] == False):
                 grid[lPosGrid.x][(lPosGrid.y)][0] =  True
                 grid[lPosGrid.x][(lPosGrid.y)][1] = 'Prey'
-                preyList.append([None, D_PREY, "Prey", True])
+                
+                
+                preyList.append([None, D_PREY, "Prey", True, [ ]])
                 preyList[(len(preyList) - 1)][0] = g.dessinerDisque(lSpawnX, lSpawnY, RAYON, "blue")
 
                 g.update()
                 break
     else :
-        lListOfCoord = [pCoord1, pCoord2]
-        lListCoordPoss = [ ]
-        lListCoordPossWrong = [ ]
+        
+        lObj = pObj1
+        lObj2 = pObj2
 
-        for m in range(len(lListOfCoord)):
-            for i in range(len(aroundCaseOnGrid)):
-                
-                lNextPos = Point(aroundCaseOnGrid[i].x + lListOfCoord[m].x, aroundCaseOnGrid[i].y + lListOfCoord[m].y)
-                
-                if (testCaseSpawn(lNextPos)):
-                    print("yo")
-                else : 
-                    lListCoordPoss.append([lNextPos, m])
-                    #sleep(10)
+        lPosCoord = [ ]
+       
+        for i in range(len(aroundCaseOnGrid)):
+            lPos1 = Point(lObj.x + aroundCaseOnGrid[i].x, lObj.y + aroundCaseOnGrid[i].y)
+            lPos2 = Point(lObj2.x + aroundCaseOnGrid[i].x, lObj2.y + aroundCaseOnGrid[i].y)
+           
 
-        lRandomIndex = randint(0, len(lListCoordPoss) - 1)
+            if(lPos2.get != (lObj.x, lObj.y) or lPos1.get != (lObj2.x, lObj2.y)):
+                lPosCoord.append(Point(lObj.x + aroundCaseOnGrid[i].x, lObj.y + aroundCaseOnGrid[i].y))
+                lPosCoord.append(Point(lObj2.x + aroundCaseOnGrid[i].x, lObj2.y + aroundCaseOnGrid[i].y))
+        
+        lGridCoord1 = coordinateToRawCol(lPos1.x , lPos1.y)
+        lGridCoord2 = coordinateToRawCol(lPos2.x , lPos2.y)
+
+        lIndexObj1 = grid[lGridCoord1.x][lGridCoord1.y][2]
+        lIndexObj2 = grid[lGridCoord2.x][lGridCoord2.y][2]
+
+        preyList[lIndexObj1][4].append(len(preyList))
+        preyList[lIndexObj2][4].append(len(preyList))
 
 
-        lRandPos = Point(lListCoordPoss[lRandomIndex][0].x + lListOfCoord[lListCoordPoss[lRandomIndex][1]].x , lListCoordPoss[lRandomIndex][0].y + lListOfCoord[lListCoordPoss[lRandomIndex][1]].y)
+        lRandIndex = randrange(0, len(lPosCoord))
+        lRandPos = lPosCoord[lRandIndex]
+        
+        lRandCoordGrid = coordinateToRawCol(lRandPos.x, lRandPos.y)
 
-        lPosGrid = coordinateToRawCol(lRandPos.x , lRandPos.y)
+        grid[lRandCoordGrid.x][(lRandCoordGrid.y)][0] =  True
+        grid[lRandCoordGrid.x][(lRandCoordGrid.y)][1] = "Prey"
+        preyList.append([None, D_PREY, "Prey", False, [ ]])
+        grid[lRandCoordGrid.x][(lRandCoordGrid.y)][1] = (len(preyList) - 1)
+        preyList[(len(preyList) - 1)][0] = g.dessinerDisque(lRandPos.x, lRandPos.y, RAYON, "Red")
 
-        grid[lPosGrid.x][lPosGrid.y][0] =  True
-        grid[lPosGrid.x][lPosGrid.y][1] = 'Prey'
-        preyList.append([None, D_PREY, "Prey", True])
-        preyList[(len(preyList) - 1)][0] = g.dessinerDisque(lRandPos.x + 15 , lRandPos.y + 15 , RAYON, "red")
-        return
+
+
         
 
         
@@ -285,18 +322,26 @@ while(True):
     g.update()
     move(preyList)
     cycleTime +=1
+    cycleTime2 +=1
 
     if (cycleTime >= TIME_CYCLE):
         cycleTime = 0
-        birthPrey() 
+        birthPrey()
+
+    if (cycleTime2 >= TIME_CYCLE2):
+        for i in range(len(preyList)):
+            preyList[i][3] = True
+
+        cycleTime2
+        
     
     #print(preyList)
     #move(predList)
-
     death(preyList)
 
 
     test = g.recupererClic()
+    
 
     if(test):
         g.fermerFenetre()
