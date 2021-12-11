@@ -59,7 +59,7 @@ def spawnPrey(pIndex):
             grid[lPosGrid.x][(lPosGrid.y)][1] = "Prey"
             grid[lPosGrid.x][(lPosGrid.y)][2] = i
             preyList.append([None, D_PREY, "Prey", True, [ ]])
-            preyList[i][0] = g.dessinerDisque(lSpawnX, lSpawnY, RAYON, "lime")
+            preyList[i][0] = g.drawDisc(lSpawnX, lSpawnY, RAYON, "lime")
             i += 1
 
             g.update()
@@ -79,7 +79,7 @@ def spawnPred(pIndex):
             grid[lPosGrid.x][(lPosGrid.y)][1] = 'Pred'
             grid[lPosGrid.x][(lPosGrid.y)][2] = i
             predList.append([None, D_PRED, "Pred"])
-            predList[i][0] = g.dessinerDisque(lSpawnX, lSpawnY, RAYON, "orange")
+            predList[i][0] = g.drawDisc(lSpawnX, lSpawnY, RAYON, "orange")
             i += 1
 
             g.update()
@@ -95,7 +95,7 @@ def drawGrid(pObjGraph, pCellSize, pEndY, pEndX):
 
     for j in range(lNcellCol):
 
-        lCol = pObjGraph.dessinerLigne(lStartLigneCol, 0, lStartLigneCol , pEndY, "white")
+        lCol = pObjGraph.drawLine(lStartLigneCol, 0, lStartLigneCol , pEndY, "white")
         pObjGraph.update()
         
         lStartLigneCol += pCellSize
@@ -105,7 +105,7 @@ def drawGrid(pObjGraph, pCellSize, pEndY, pEndX):
 
     for i in range(lNCellRaw):
         
-        lRaw = pObjGraph.dessinerLigne(0, lStartLigneRaw, pEndX, lStartLigneRaw, "white")
+        lRaw = pObjGraph.drawLine(0, lStartLigneRaw, pEndX, lStartLigneRaw, "white")
         pObjGraph.update()
         lStartLigneRaw += pCellSize
         
@@ -135,29 +135,30 @@ def testCaseSpawn(pCoord):
         return True
     
 
-def updatePosGrid (pLastPos, pNextPos):
-    lPosOnGrid = coordinateToRawCol(pLastPos.x , pLastPos.y)
-    lNextPosOnGrid = coordinateToRawCol(pNextPos.x , pNextPos.y)
+def udpateGrid (pPos , pNextPos = None, pDeath = False , pList = None):
+    
+    if (pDeath == False):
+        lPosOnGrid = coordinateToRawCol(pPos.x , pPos.y)
+        lNextPosOnGrid = coordinateToRawCol(pNextPos.x , pNextPos.y)
 
-    grid[lNextPosOnGrid.x][lNextPosOnGrid.y] = grid[lPosOnGrid.x][lPosOnGrid.y]
-    grid[lPosOnGrid.x][lPosOnGrid.y] = [False, None, -1]
+        grid[lNextPosOnGrid.x][lNextPosOnGrid.y] = grid[lPosOnGrid.x][lPosOnGrid.y]
+        grid[lPosOnGrid.x][lPosOnGrid.y] = [False, None, -1]
 
-def updateDeathGrid(pPos, pList):
-    lPosOnGrid = coordinateToRawCol(pPos.x , pPos.y)
-    grid[lPosOnGrid.x][lPosOnGrid.y] = [False, None, -1]
+    else :
+        lPosOnGrid = coordinateToRawCol(pPos.x , pPos.y)
+        grid[lPosOnGrid.x][lPosOnGrid.y] = [False, None, -1]
 
-    for i in range(len(pList)):
-        
-        lPosOnGridObj = coordinateToRawCol(pList[i][0].x , pList[i][0].y)
+        for i in range(len(pList)):
+            lPosOnGridObj = coordinateToRawCol(pList[i][0].x , pList[i][0].y)
+            grid[lPosOnGridObj.x][lPosOnGridObj.y] = [grid[lPosOnGridObj.x][lPosOnGridObj.y][0], grid[lPosOnGridObj.x][lPosOnGridObj.y][0], i]
 
-        grid[lPosOnGridObj.x][lPosOnGridObj.y] = [grid[lPosOnGridObj.x][lPosOnGridObj.y][0], grid[lPosOnGridObj.x][lPosOnGridObj.y][0], i]
+
+    
         
 
 def death(pList):
-    sleep(0.25)
+    sleep(0.10)
     lIndex = len(pList) - 1
-
-    #print(lIndex)
 
     if(len(pList) != 0 and len(pList) > 0):
 
@@ -165,14 +166,13 @@ def death(pList):
             if(len(pList) != 0 and len(pList) > 0):
 
                 if (pList[lIndex][1] <= 0):
-                    updateDeathGrid(Point(pList[lIndex][0].x, pList[lIndex][0].y), pList)
+                    udpateGrid(Point(pList[lIndex][0].x, pList[lIndex][0].y), None, True, pList)
                     g.supprimer(pList[lIndex][0])
                     pList.remove(pList[lIndex])
                 else :
                     pList[lIndex][1] -= 1
                 
                 lIndex -= 1  
-                #print(lIndex)
     
 def testCaseBirth(pList, pListCord):
     for i in range(len(pList)):
@@ -210,7 +210,7 @@ def move(pList):
     lNcellCol = int(stageWidth / CELLSIZE)
     lNCellRaw = int(stageHeight / CELLSIZE)
     
-    sleep(0.25)
+    sleep(0.10)
 
     
     for i in range(len(pList)):
@@ -235,8 +235,8 @@ def move(pList):
 
         if (testCaseMove(pList[i][2], i, lNextPos)):
             lPrevPos = Point(pList[i][0].x , pList[i][0].y)
-            updatePosGrid(lPrevPos, lNextPos)
-            g.deplacer(pList[i][0] , ranX, ranY)
+            udpateGrid(lPrevPos, lNextPos)
+            g.moveOn(pList[i][0] , ranX, ranY)
             testCaseBirth(pList, aroundCaseOnGrid)
             
             
@@ -256,7 +256,7 @@ def birthPrey(pBirth = False, pObj1 = None,  pObj2 = None):
                 
                 
                 preyList.append([None, D_PREY, "Prey", True, [ ]])
-                preyList[(len(preyList) - 1)][0] = g.dessinerDisque(lSpawnX, lSpawnY, RAYON, "blue")
+                preyList[(len(preyList) - 1)][0] = g.drawDisc(lSpawnX, lSpawnY, RAYON, "blue")
 
                 g.update()
                 break
@@ -295,7 +295,7 @@ def birthPrey(pBirth = False, pObj1 = None,  pObj2 = None):
         grid[lRandCoordGrid.x][(lRandCoordGrid.y)][1] = "Prey"
         preyList.append([None, D_PREY, "Prey", False, [ ]])
         grid[lRandCoordGrid.x][(lRandCoordGrid.y)][1] = (len(preyList) - 1)
-        preyList[(len(preyList) - 1)][0] = g.dessinerDisque(lRandPos.x, lRandPos.y, RAYON, "Red")
+        preyList[(len(preyList) - 1)][0] = g.drawDisc(lRandPos.x, lRandPos.y, RAYON, "Red")
 
 
 
@@ -307,7 +307,7 @@ def birthPrey(pBirth = False, pObj1 = None,  pObj2 = None):
 
 
 #ouverture de fenêtre
-g = ouvrirFenetre(stageWidth, stageHeight)
+g = openWindow(stageWidth, stageHeight)
 
 #afficher image
 drawGrid(g, CELLSIZE, stageHeight , stageWidth)
@@ -330,19 +330,18 @@ while(True):
 
     if (cycleTime2 >= TIME_CYCLE2):
         for i in range(len(preyList)):
-            preyList[i][3] = True
+            #preyList[i][3] = True
+            pass
 
-        cycleTime2
+        cycleTime2 = 0
         
-    
-    #print(preyList)
-    #move(predList)
+
     death(preyList)
 
 
-    test = g.recupererClic()
+    test = g.clickOn()
     
 
     if(test):
-        g.fermerFenetre()
+        g.closeWindow()
         break
